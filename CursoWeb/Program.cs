@@ -1,3 +1,21 @@
+using CursoWeb.Services;
+using Refit;
+using System.Configuration;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Refit;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.TestHost;
+
 namespace CursoWeb
 {
     public class Program
@@ -6,10 +24,39 @@ namespace CursoWeb
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+          .SetBasePath(builder.Environment.ContentRootPath)
+          .AddJsonFile("appsettings.Development.json")
+          .Build();
+
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            var clientHandler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; }
+            };
+            builder.Services.AddRefitClient<IUsuarioService>()
+                .ConfigureHttpClient(c =>
+                {
+                    c.BaseAddress = new Uri(configuration.GetValue<string>("UrlApiCurso"));
+                }).ConfigurePrimaryHttpMessageHandler(c => clientHandler);
+
+            //builder.Services.AddTransient<BearerTokenHandler>();
+
+            //builder.Services.AddRefitClient<ICourseServices>()
+            //    .AddHttpMessageHandler<BearerTokenHandler>()
+            //   .ConfigureHttpClient(c =>
+            //   {
+            //       c.BaseAddress = new Uri(Configuration.GetValue<string>("UrlApiCurso"));
+            //   }).ConfigurePrimaryHttpMessageHandler(c => clientHandler);
+
+
+
+
+
             var app = builder.Build();
+
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
