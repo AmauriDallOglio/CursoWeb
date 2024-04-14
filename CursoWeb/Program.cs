@@ -36,11 +36,20 @@ namespace CursoWeb
             {
                 ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; }
             };
+
             builder.Services.AddRefitClient<IUsuarioService>()
                 .ConfigureHttpClient(c =>
                 {
                     c.BaseAddress = new Uri(configuration.GetValue<string>("UrlApiCurso"));
                 }).ConfigurePrimaryHttpMessageHandler(c => clientHandler);
+            
+            builder.Services.AddRefitClient<ICursoService>()
+                  .ConfigureHttpClient(c =>
+                  {
+                      c.BaseAddress = new Uri(configuration.GetValue<string>("UrlApiCurso"));
+                  }).ConfigurePrimaryHttpMessageHandler(c => clientHandler);
+
+
 
             //builder.Services.AddTransient<BearerTokenHandler>();
 

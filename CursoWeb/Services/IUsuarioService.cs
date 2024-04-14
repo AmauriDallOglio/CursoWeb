@@ -8,5 +8,9 @@ namespace CursoWeb.Services
     {
         [Post("/api/v1/Usuario/registrar")]
         Task<RegistrarUsuarioViewModelInput> Registrar(RegistrarUsuarioViewModelInput input);
+
+
+        [Post("/api/v1/usuario/logar")]
+        Task<LoginViewModelOutput> Logar(LoginViewModelInput loginViewModelInput);
     }
 }

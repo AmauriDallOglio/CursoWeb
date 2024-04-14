@@ -1,18 +1,41 @@
 ﻿using CursoWeb.Models.Curso;
+using CursoWeb.Services;
 using Microsoft.AspNetCore.Mvc;
+using Refit;
 
 namespace CursoWeb.Controllers
 {
     public class CursoController : Controller
     {
+        private readonly ICursoService _iCursoService;
+
+        public CursoController(ICursoService cursoService)
+        {
+            _iCursoService = cursoService;
+        }
+
         public IActionResult Cadastrar()
         {
             return View();
         }
 
         [HttpPost]
-        public IActionResult Cadastrar(CadastrarCursoViewModelInput cadastrarCursoViewModelInput)
+        public async Task<IActionResult> Cadastrar(CadastrarCursoViewModelInput cadastrarCursoViewModelInput)
         {
+            try
+            {
+                var curso = await _iCursoService.Registrar(cadastrarCursoViewModelInput);
+
+                ModelState.AddModelError("", $"O curso foi cadastrado com sucesso {curso.Nome}");
+            }
+            catch (ApiException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+            }
             return View();
         }
 
@@ -24,7 +47,7 @@ namespace CursoWeb.Controllers
             {
                 cursos.Add(new ListarCursoViewModelOutput()
                 {
-                    Nome = "Curso " + i,
+                    Nome = "(Off) Curso " + i,
                     Descricao = "Descrição do curso " + i,
                     Login = "amauriA"
                 });
