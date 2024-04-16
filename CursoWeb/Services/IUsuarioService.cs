@@ -6,11 +6,11 @@ namespace CursoWeb.Services
 {
     public interface IUsuarioService
     {
-        [Post("/api/v1/Usuario/registrar")]
+        [Post("/api/v1/Usuario/Registrar")]
         Task<RegistrarUsuarioViewModelInput> Registrar(RegistrarUsuarioViewModelInput input);
 
 
-        [Post("/api/v1/usuario/logar")]
+        [Post("/api/v1/Usuario/Logar")]
         Task<LoginViewModelOutput> Logar(LoginViewModelInput loginViewModelInput);
     }
 }

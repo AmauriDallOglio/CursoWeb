@@ -51,9 +51,9 @@ namespace CursoWeb.Controllers
 
             try
             {
-                var resultado = await _iUsuarioService.Registrar(registrarUsuarioViewModelInput);
-                ModelState.AddModelError("", "blz ao cadastrar ");
+                var usuario = await _iUsuarioService.Registrar(registrarUsuarioViewModelInput);
 
+                ModelState.AddModelError("", $"Os dados foram cadastrado com sucesso para o login {usuario.Login}");
             }
             catch (ApiException ex)
             {
@@ -61,11 +61,15 @@ namespace CursoWeb.Controllers
             }
             catch (Exception ex)
             {
-
                 ModelState.AddModelError("", ex.Message);
             }
 
 
+            return View();
+        }
+
+        public IActionResult Logar()
+        {
             return View();
         }
 
@@ -109,10 +113,17 @@ namespace CursoWeb.Controllers
             return View();
         }
 
-        [HttpPost]
-        public IActionResult Logar(LoginViewModelInput loginViewModelInput)
+        public IActionResult EfetuarLogoff()
         {
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Logoff()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            return RedirectToAction($"{nameof(Logar)}");
         }
     }
 

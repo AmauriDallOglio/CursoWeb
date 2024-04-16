@@ -5,6 +5,7 @@ using Refit;
 
 namespace CursoWeb.Controllers
 {
+    [Microsoft.AspNetCore.Authorization.Authorize]
     public class CursoController : Controller
     {
         private readonly ICursoService _iCursoService;
@@ -39,24 +40,31 @@ namespace CursoWeb.Controllers
             return View();
         }
 
-        public IActionResult Listar()
+        public async Task<IActionResult> Listar()
         {
-            var cursos = new List<ListarCursoViewModelOutput>();
+            var cursos = await _iCursoService.Obter();
 
-            for (int i = 0; i < 5; i++)
-            {
-                cursos.Add(new ListarCursoViewModelOutput()
-                {
-                    Nome = "(Off) Curso " + i,
-                    Descricao = "Descrição do curso " + i,
-                    Login = "amauriA"
-                });
-            }
-
-
-         
             return View(cursos);
         }
+
+        //public IActionResult Listar()
+        //{
+        //    var cursos = new List<ListarCursoViewModelOutput>();
+
+        //    for (int i = 0; i < 5; i++)
+        //    {
+        //        cursos.Add(new ListarCursoViewModelOutput()
+        //        {
+        //            Nome = "(Off) Curso " + i,
+        //            Descricao = "Descrição do curso " + i,
+        //            Login = "amauriA"
+        //        });
+        //    }
+
+
+
+        //    return View(cursos);
+        //}
 
         //[HttpPost]
         //public IActionResult Listar()

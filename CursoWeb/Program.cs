@@ -15,6 +15,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.TestHost;
+using CursoWeb.Handlers;
 
 namespace CursoWeb
 {
@@ -31,25 +32,37 @@ namespace CursoWeb
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddHttpContextAccessor(); //BearerTokenMessageHandler
 
             var clientHandler = new HttpClientHandler
             {
                 ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; }
             };
 
+       
             builder.Services.AddRefitClient<IUsuarioService>()
+            //.AddHttpMessageHandler<BearerTokenMessageHandler>()
+            .ConfigureHttpClient(c =>
+            {
+                c.BaseAddress = new Uri(configuration.GetValue<string>("UrlApiCurso"));
+            }).ConfigurePrimaryHttpMessageHandler(c => clientHandler);
+
+
+            builder.Services.AddTransient<BearerTokenMessageHandler>();
+            builder.Services.AddRefitClient<ICursoService>()
+            .AddHttpMessageHandler<BearerTokenMessageHandler>()
                 .ConfigureHttpClient(c =>
                 {
                     c.BaseAddress = new Uri(configuration.GetValue<string>("UrlApiCurso"));
                 }).ConfigurePrimaryHttpMessageHandler(c => clientHandler);
-            
-            builder.Services.AddRefitClient<ICursoService>()
-                  .ConfigureHttpClient(c =>
-                  {
-                      c.BaseAddress = new Uri(configuration.GetValue<string>("UrlApiCurso"));
-                  }).ConfigurePrimaryHttpMessageHandler(c => clientHandler);
 
 
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+             .AddCookie(options =>
+             {
+                 options.LoginPath = "/Usuario/Logar";
+                 options.AccessDeniedPath = "/Usuario/Logar";
+             });
 
             //builder.Services.AddTransient<BearerTokenHandler>();
 
@@ -80,7 +93,9 @@ namespace CursoWeb
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
+ 
 
             app.MapControllerRoute(
                 name: "default",
